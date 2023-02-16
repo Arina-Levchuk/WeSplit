@@ -14,13 +14,21 @@ struct ContentView: View {
     @State private var numberOfPeople = 2
     @State private var tipPercentage = 20
     
-    var totalPerPerson: Double {
-        let peopleCount = Double(numberOfPeople + 2)
+    var currency: FloatingPointFormatStyle<Double>.Currency {
+        return .currency(code: Locale.current.currency?.identifier ?? "USD")
+    }
+    
+    var totalAmount: Double {
         let tipSelection = Double(tipPercentage)
-        
         let tipValue = checkAmount / 100 * tipSelection
         let grandTotal = checkAmount + tipValue
-        let amountPerPerson = grandTotal / peopleCount
+        
+        return grandTotal
+    }
+    
+    var totalPerPerson: Double {
+        let peopleCount = Double(numberOfPeople + 2)
+        let amountPerPerson = totalAmount / peopleCount
         
         return amountPerPerson
     }
@@ -31,7 +39,7 @@ struct ContentView: View {
         NavigationView {
             Form {
                 Section {
-                    TextField("Amount", value: $checkAmount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
+                    TextField("Amount", value: $checkAmount, format: currency)
                         .keyboardType(.decimalPad)
                         .focused($amountIsFocused)
                     
@@ -54,7 +62,15 @@ struct ContentView: View {
                 }
                 
                 Section {
-                    Text(totalPerPerson, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
+                    Text(totalAmount, format: currency)
+                } header: {
+                    Text("Total amount")
+                }
+                
+                Section {
+                    Text(totalPerPerson, format: currency)
+                } header: {
+                   Text("Amount per person")
                 }
             }
             .navigationTitle("WeSplit")
